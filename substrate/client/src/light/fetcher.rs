@@ -39,6 +39,8 @@ pub struct RemoteCallRequest<Hash: ::std::fmt::Display> {
 	pub method: String,
 	/// Call data.
 	pub call_data: Vec<u8>,
+	/// Number of times to retry request. None means that default RETRY_COUNT is used.
+	pub retry_count: Option<usize>,
 }
 
 /// Remote canonical header request.
@@ -46,6 +48,8 @@ pub struct RemoteCallRequest<Hash: ::std::fmt::Display> {
 pub struct RemoteHeaderRequest<Number: ::std::fmt::Display> {
 	/// Number of the header to query.
 	pub block: Number,
+	/// Number of times to retry request. None means that default RETRY_COUNT is used.
+	pub retry_count: Option<usize>,
 }
 
 /// Remote storage read request.
@@ -55,6 +59,8 @@ pub struct RemoteReadRequest<Hash: ::std::fmt::Display> {
 	pub block: Hash,
 	/// Storage key to read.
 	pub key: Vec<u8>,
+	/// Number of times to retry request. None means that default RETRY_COUNT is used.
+	pub retry_count: Option<usize>,
 }
 
 /// Light client data fetcher. Implementations of this trait must check if remote data
@@ -281,6 +287,7 @@ pub mod tests {
 		assert_eq!(local_checker.check_read_proof(&RemoteReadRequest {
 			block: remote_block_hash,
 			key: b":auth:len".to_vec(),
+			retry_count: None,
 		}, remote_read_proof).unwrap().unwrap()[0], authorities_len as u8);
 	}
 
@@ -290,6 +297,7 @@ pub mod tests {
 		assert!(local_checker.check_read_proof(&RemoteReadRequest {
 			block: remote_block_hash,
 			key: b":auth:len".to_vec(),
+			retry_count: None,
 		}, remote_read_proof).is_err());
 	}
 
@@ -298,6 +306,7 @@ pub mod tests {
 		let (local_checker, remote_block_header, remote_header_proof) = prepare_for_header_proof_check(true);
 		assert_eq!(local_checker.check_header_proof(&RemoteHeaderRequest {
 			block: 1,
+			retry_count: None,
 		}, Some(remote_block_header.clone()), remote_header_proof).unwrap(), remote_block_header);
 	}
 
@@ -306,6 +315,7 @@ pub mod tests {
 		let (local_checker, _, remote_header_proof) = prepare_for_header_proof_check(true);
 		assert!(local_checker.check_header_proof(&RemoteHeaderRequest {
 			block: 1,
+			retry_count: None,
 		}, None, remote_header_proof).is_err());
 	}
 
@@ -314,6 +324,7 @@ pub mod tests {
 		let (local_checker, remote_block_header, remote_header_proof) = prepare_for_header_proof_check(false);
 		assert!(local_checker.check_header_proof(&RemoteHeaderRequest {
 			block: 1,
+			retry_count: None,
 		}, Some(remote_block_header.clone()), remote_header_proof).is_err());
 	}
 
@@ -323,6 +334,7 @@ pub mod tests {
 		remote_block_header.number = 100;
 		assert!(local_checker.check_header_proof(&RemoteHeaderRequest {
 			block: 1,
+			retry_count: None,
 		}, Some(remote_block_header.clone()), remote_header_proof).is_err());
 	}
 }

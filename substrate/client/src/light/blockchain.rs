@@ -99,6 +99,7 @@ impl<S, F, Block> BlockchainHeaderBackend<Block> for Blockchain<S, F> where Bloc
 				self.fetcher().upgrade().ok_or(ClientErrorKind::NotAvailableOnLightClient)?
 					.remote_header(RemoteHeaderRequest {
 						block: number,
+						retry_count: None,
 					})
 					.into_future().wait()
 					.map(Some)

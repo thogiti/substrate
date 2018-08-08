@@ -65,6 +65,7 @@ impl<B, F, Block> CallExecutor<Block> for RemoteCallExecutor<B, F>
 			block: block_hash.clone(),
 			method: method.into(),
 			call_data: call_data.to_vec(),
+			retry_count: None,
 		}).into_future().wait()
 	}
 
@@ -160,6 +161,7 @@ mod tests {
 			block: test_client::runtime::Hash::default(),
 			method: "authorities".into(),
 			call_data: vec![],
+			retry_count: None,
 		}, remote_execution_proof).unwrap();
 	}
 }
